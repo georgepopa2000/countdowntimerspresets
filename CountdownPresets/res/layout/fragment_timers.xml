@@ -1,0 +1,21 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/LinearLayout1"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <GridLayout
+        android:id="@+id/gridButtonsContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+</GridLayout>
+    
+    <Button
+        android:id="@+id/butTimerPresetAdd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="@string/but_add_timer_preset" />
+
+</LinearLayout>
