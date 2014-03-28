@@ -1,8 +1,16 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="ro.pagepo.countdownpresets.CountdownActivity"
-    tools:ignore="MergeRootFrame" />
+    tools:ignore="MergeRootFrame" >
+
+    <fragment
+        android:id="@+id/fragmentCountDown"
+        android:name="ro.pagepo.countdownpresets.CountDownJobFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</ScrollView>
 
