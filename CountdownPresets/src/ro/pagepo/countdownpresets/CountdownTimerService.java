@@ -13,8 +13,8 @@ import android.util.Log;
 
 public class CountdownTimerService extends Service {
 	public static final int NOTIFICATION_ID = 1211;
-	public static final String KEY_SECONDS_LEFT = "KEY_SECONDS_LEFT";
 	public static final String EXTRA_IS_FINISHED ="EXTRA_IS_FINISHED";
+	public static final String FROM_SERVICE = "FROM_SERVICE";
 
 	CountDownTimer cdt = null;
 	Notification.Builder builder;
@@ -38,11 +38,13 @@ public class CountdownTimerService extends Service {
 		Intent intent = new Intent(this, CountdownActivity.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
 				| Intent.FLAG_ACTIVITY_NEW_TASK);
+		intent.putExtra(FROM_SERVICE, true);
 		PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
 				intent, 0);
 		builder.setContentIntent(pendingIntent);
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		startForeground(NOTIFICATION_ID, builder.getNotification());
@@ -55,12 +57,14 @@ public class CountdownTimerService extends Service {
 			public void onTick(long millisUntilFinished) {
 				Log.d("xxx", (int) (millisUntilFinished / 1000)
 						+ " seconds left");
-				Intent intent = new Intent(CountdownActivity.MAIN_BROADCAST_ACTION);
-				intent.putExtra(KEY_SECONDS_LEFT,
-						(int) (millisUntilFinished / 1000));
+				Intent intent = new Intent(CountDownJobFragment.MAIN_BROADCAST_ACTION);
+
+				int minutes = (int) ((millisUntilFinished/1000)/60);
+				int seconds = (int) (millisUntilFinished/1000 - minutes*60);
+				intent.putExtra(CountdownActivity.MINUTES_EXTRA, minutes);
+				intent.putExtra(CountdownActivity.SECONDS_EXTRA, seconds);
 				sendBroadcast(intent);
-				builder.setContentText((int) (millisUntilFinished / 1000)
-						+ " seconds left");
+				builder.setContentText(minutes+" : "+seconds);
 				Notification notification = builder.getNotification();
 				NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 				nm.notify(NOTIFICATION_ID, notification);
@@ -71,6 +75,7 @@ public class CountdownTimerService extends Service {
 				Intent fIntent = new Intent(CountdownTimerService.this,
 						CountdownActivity.class);
 				fIntent.putExtra(EXTRA_IS_FINISHED, true);
+				fIntent.putExtra(FROM_SERVICE, true);
 				fIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
 						| Intent.FLAG_ACTIVITY_NEW_TASK);
 				getApplication().startActivity(fIntent);

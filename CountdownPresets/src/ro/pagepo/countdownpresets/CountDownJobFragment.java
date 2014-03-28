@@ -1,9 +1,14 @@
 package ro.pagepo.countdownpresets;
 
 import android.app.Fragment;
-import android.app.Notification;
-import android.app.NotificationManager;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,15 +17,22 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
-public class CountDownJobFragment extends Fragment implements
-		CountdownJobCallback {
+public class CountDownJobFragment extends Fragment  {
 	
 	long milliseconds = 0;
-	CountDownTimerJob cdtj =null;
-	Notification.Builder nb =null;
-	
-	public static final int NOTIFICATION_ID =1211;
+
 	public static final String KEY_SECONDS_TOTAL ="KEY_SECONDS_TOTAL";
+	public static final String MAIN_BROADCAST_ACTION = "ro.pagepo.countdownpresets.CountdownActivity.receiver.action";
+	
+	BroadcastReceiver br = new BroadcastReceiver() {
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			displayTimeLeft(intent
+					.getIntExtra(CountdownActivity.MINUTES_EXTRA, 0)*60*1000+intent
+					.getIntExtra(CountdownActivity.SECONDS_EXTRA, 0)*1000);
+		}
+	};
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -33,7 +45,9 @@ public class CountDownJobFragment extends Fragment implements
 			@Override
 			public void onClick(View v) {
 				stopTimer();
-				getActivity().finish();
+				Ringtone r = CountDownJobFragment.this.r;
+				if (r!= null) r.stop();			
+				getActivity().finish();				
 			}
 		});
 		
@@ -45,67 +59,64 @@ public class CountDownJobFragment extends Fragment implements
 	@Override
 	public void onStart() {
 		super.onStart();
-		displayTimeLeft(milliseconds);
-		
-	}
-
-	@Override
-	public void onTimerThick(long millisUntilFinished) {
-		displayTimeLeft(millisUntilFinished);
-		setNotification(formatTime(millisUntilFinished));
+		displayTimeLeft(milliseconds);		
 	}
 	
-	public void startTimer(){
-		cdtj = new CountDownTimerJob(this.milliseconds, 1000, this);
-		cdtj.start();
+	Ringtone r = null;
+	@Override
+	public void onResume() {
+		super.onResume();
+		Log.d("xxx", "on resume");
+		boolean finished = getActivity().getIntent().getBooleanExtra(CountdownTimerService.EXTRA_IS_FINISHED, false);
 		
-		setNotification("");
+		if (finished){
+			displayTimeLeft(0);
+			Uri uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
+			 r = RingtoneManager.getRingtone(this.getActivity(), uri);
+			r.play();
+			//startFlashBackground();
+			displayTimeLeft(0);
+		}
+		else
+			displayTimeLeft(milliseconds);
 
+		
+		getActivity().registerReceiver(br, new IntentFilter(MAIN_BROADCAST_ACTION));	
 	}
+
+	public void startTimer(){
+		startTimerService();
+	}
+	
+	public void startTimerService() {
+		Log.d("xxx", "set start serv");
+		Intent sintent = new Intent(this.getActivity(),
+				CountdownTimerService.class);
+		sintent.putExtra(KEY_SECONDS_TOTAL, (int)(this.milliseconds/1000));
+		ComponentName srv = getActivity().startService(sintent);
+		Log.d("xxx", "service is " + srv);
+	}
+
 	
 	public void stopTimer(){
-		cdtj.cancel();
+		Intent sintent = new Intent(this.getActivity(),
+				CountdownTimerService.class);		
+		getActivity().stopService(sintent);	
 	}
 	
-	@SuppressWarnings("deprecation")
-	private void setNotification(String text){
-		if (nb == null){
-			nb = new Notification.Builder(getActivity());
-			nb.setContentTitle("Countdown Timer");
-			nb.setOngoing(true);
-			nb.setSmallIcon(R.drawable.ic_launcher);
-			nb.setTicker("Countdown Timer started ... ");
-		}
-		nb.setContentText(text);
-		NotificationManager nm = (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
-		Notification not = nb.getNotification();
-		nm.notify(NOTIFICATION_ID, not);		
-		Log.d("xxl",NOTIFICATION_ID+"");
-	}
-	
-	private void cancelNotification(){
-		NotificationManager nm = (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
-		nm.cancel(NOTIFICATION_ID);
-		nb = null;
-	}
 
-	@Override
-	public void onTimerFinish() {
-		TextView txtTimeLeft = (TextView) getView().findViewById(R.id.txtTimeLeft);
-		txtTimeLeft.setText("Finished");
-		cancelNotification();
-	}
-	
+
 	public void setMillisecondsTimer(int minutes,int seconds){		
 		this.milliseconds = minutes*60*1000+seconds*1000;
 		displayTimeLeft(this.milliseconds);
 	}
 	
+	
 	private void displayTimeLeft(long millis){
 		if (getView()== null) return;
 		TextView txtTimeLeft = (TextView) getView().findViewById(R.id.txtTimeLeft);
 		if (txtTimeLeft == null) return;
-		if (millis == 0 ) return;
+		//if (millis == 0 ) return;
 
 		txtTimeLeft.setText(formatTime(millis));
 	}
@@ -117,14 +128,9 @@ public class CountDownJobFragment extends Fragment implements
 	}
 	
 	@Override
-	public void onDetach() {
-		super.onDetach();
-		cdtj.cancel();
-		cancelNotification();
+	public void onPause() {
+		super.onPause();
+		getActivity().unregisterReceiver(br);
 	}
 	
-	public void showFinished(){
-		
-	}
-
 }

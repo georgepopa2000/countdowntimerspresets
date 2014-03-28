@@ -1,20 +1,13 @@
 package ro.pagepo.countdownpresets;
 
 import android.app.Activity;
-import android.app.ActionBar;
-import android.app.Fragment;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.os.Build;
+import android.util.Log;
 
 public class CountdownActivity extends Activity {
 	public static final String MINUTES_EXTRA = "MINUTES_EXTRA";
 	public static final String SECONDS_EXTRA = "SECONDS_EXTRA";
-	public static final String MAIN_BROADCAST_ACTION = "ro.pagepo.countdownpresets.CountdownActivity.receiver.action";
+
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -22,9 +15,11 @@ public class CountdownActivity extends Activity {
 		setContentView(R.layout.activity_countdown);
 		int minutes = this.getIntent().getIntExtra(MINUTES_EXTRA,0);
 		int seconds = this.getIntent().getIntExtra(SECONDS_EXTRA, 0);
+		Log.d("xxx",minutes+":"+seconds);
+		boolean xxl = getIntent().getBooleanExtra(CountdownTimerService.FROM_SERVICE, false);
 		CountDownJobFragment frg =  (CountDownJobFragment) getFragmentManager().findFragmentById(R.id.fragmentCountDown);
 		frg.setMillisecondsTimer(minutes, seconds);
-		frg.startTimer();
+		if (!xxl) frg.startTimer();
 	}
 
 }
