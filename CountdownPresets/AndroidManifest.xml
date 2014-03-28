@@ -6,7 +6,8 @@
 
     <uses-sdk
         android:minSdkVersion="14"
-        android:targetSdkVersion="15" />
+        android:targetSdkVersion="19" />
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
 
     <application
         android:allowBackup="true"
@@ -30,8 +31,14 @@
         <service
             android:name="ro.pagepo.countdownpresets.CountdownTimerService"
             android:enabled="true"
-            android:exported="true" >
+            android:exported="false" >
         </service>
+
+        <receiver
+            android:name="ro.pagepo.countdownpresets.TimerFinishBroadcastReceiver"
+            android:enabled="true"
+            android:exported="false" >
+        </receiver>
     </application>
 
 </manifest>

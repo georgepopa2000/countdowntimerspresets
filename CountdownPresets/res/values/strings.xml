@@ -13,8 +13,8 @@
     <string name="but_timer_preset_edit">Edit</string>
     <string name="txt_timer_preset_hint">Optional</string>
     <string name="title_activity_countdown">CountdownActivity</string>
-    <string name="but_stop_timer">Stop</string>
+    <string name="but_stop_timer">Stop alarm</string>
     <string name="but_cancel_timer">Cancel</string>
-    <string name="but_restart_timer">Restart</string>
+    <string name="but_restart_timer">Restart timer</string>
 
 </resources>

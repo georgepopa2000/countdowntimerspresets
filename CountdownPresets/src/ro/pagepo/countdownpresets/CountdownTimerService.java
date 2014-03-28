@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.os.Binder;
 import android.os.CountDownTimer;
 import android.os.IBinder;
+import android.os.SystemClock;
 import android.util.Log;
 
 public class CountdownTimerService extends Service {
@@ -34,7 +35,7 @@ public class CountdownTimerService extends Service {
 		builder = new Notification.Builder(this);
 		builder.setSmallIcon(R.drawable.ic_launcher);
 		builder.setTicker("Countdown timer started");
-		builder.setContentTitle("Countdown timer started");
+		builder.setContentTitle("Countdown timer running");
 		Intent intent = new Intent(this, CountdownActivity.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
 				| Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -51,20 +52,17 @@ public class CountdownTimerService extends Service {
 		if (cdt != null)
 			cdt.cancel();
 		int seconds = intent.getIntExtra(CountDownJobFragment.KEY_SECONDS_TOTAL, 60);
-		cdt = new CountDownTimer(seconds * 1000, 1000) {
+		cdt = new CountDownTimer(seconds * 1000, 100) {
 
 			@Override
 			public void onTick(long millisUntilFinished) {
-				Log.d("xxx", (int) (millisUntilFinished / 1000)
-						+ " seconds left");
-				Intent intent = new Intent(CountDownJobFragment.MAIN_BROADCAST_ACTION);
+				//Log.d("xxx", (int) (millisUntilFinished / 1000)	+ " seconds left");
+				//Log.d("xxx service","tick "+millisUntilFinished+" "+SystemClock.elapsedRealtime());
 
 				int minutes = (int) ((millisUntilFinished/1000)/60);
 				int seconds = (int) (millisUntilFinished/1000 - minutes*60);
-				intent.putExtra(CountdownActivity.MINUTES_EXTRA, minutes);
-				intent.putExtra(CountdownActivity.SECONDS_EXTRA, seconds);
-				sendBroadcast(intent);
-				builder.setContentText(minutes+" : "+seconds);
+				sendTimeToReceivers(minutes, seconds);
+				builder.setContentText("Time left "+minutes+" : "+seconds);
 				Notification notification = builder.getNotification();
 				NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 				nm.notify(NOTIFICATION_ID, notification);
@@ -72,12 +70,15 @@ public class CountdownTimerService extends Service {
 
 			@Override
 			public void onFinish() {
+				//sendTimeToReceivers(0, 0);				;
+				Log.d("xxx","finish sent broadcast"+SystemClock.elapsedRealtime());
 				Intent fIntent = new Intent(CountdownTimerService.this,
 						CountdownActivity.class);
 				fIntent.putExtra(EXTRA_IS_FINISHED, true);
 				fIntent.putExtra(FROM_SERVICE, true);
 				fIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
 						| Intent.FLAG_ACTIVITY_NEW_TASK);
+				Log.d("xxx","finish starting app"+SystemClock.elapsedRealtime());
 				getApplication().startActivity(fIntent);
 				this.cancel();
 				stopSelf();
@@ -86,6 +87,23 @@ public class CountdownTimerService extends Service {
 		};
 		cdt.start();
 		return super.onStartCommand(intent, flags, startId);
+	}
+	
+	private void sendTimeToReceivers(int minutes,int seconds){
+		Log.d("xxx","send broadcast "+seconds+" "+SystemClock.elapsedRealtime());
+		Intent intent = new Intent(CountDownJobFragment.MAIN_BROADCAST_ACTION);
+
+		intent.putExtra(CountdownActivity.MINUTES_EXTRA, minutes);
+		intent.putExtra(CountdownActivity.SECONDS_EXTRA, seconds);
+		sendBroadcast(intent);
+	}
+	
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		Log.d("xxx","on destroy");
+		stopForeground(true);
+		if (cdt!= null) cdt.cancel();
 	}
 
 }
