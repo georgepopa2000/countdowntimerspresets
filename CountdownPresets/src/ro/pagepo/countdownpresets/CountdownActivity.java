@@ -21,5 +21,5 @@ public class CountdownActivity extends Activity {
 		frg.setMillisecondsTimer(minutes, seconds);
 		if (!xxl) frg.startTimer();
 	}
-
+	
 }

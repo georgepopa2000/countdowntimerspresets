@@ -36,10 +36,11 @@ public class CountdownTimerService extends Service {
 		builder.setSmallIcon(R.drawable.ic_launcher);
 		builder.setTicker("Countdown timer started");
 		builder.setContentTitle("Countdown timer running");
-		Intent intent = new Intent(this, CountdownActivity.class);
+		Intent intent = new Intent(this, TimersActivity.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
 				| Intent.FLAG_ACTIVITY_NEW_TASK);
 		intent.putExtra(FROM_SERVICE, true);
+		intent.putExtra(TimersActivity.KEY_STATE_APP, TimersActivity.STATE_FROM_NOTIFICATION);
 		PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
 				intent, 0);
 		builder.setContentIntent(pendingIntent);
@@ -56,13 +57,12 @@ public class CountdownTimerService extends Service {
 
 			@Override
 			public void onTick(long millisUntilFinished) {
-				//Log.d("xxx", (int) (millisUntilFinished / 1000)	+ " seconds left");
-				//Log.d("xxx service","tick "+millisUntilFinished+" "+SystemClock.elapsedRealtime());
 
 				int minutes = (int) ((millisUntilFinished/1000)/60);
 				int seconds = (int) (millisUntilFinished/1000 - minutes*60);
 				sendTimeToReceivers(minutes, seconds);
 				builder.setContentText("Time left "+minutes+" : "+seconds);
+
 				Notification notification = builder.getNotification();
 				NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 				nm.notify(NOTIFICATION_ID, notification);
@@ -73,12 +73,13 @@ public class CountdownTimerService extends Service {
 				//sendTimeToReceivers(0, 0);				;
 				Log.d("xxx","finish sent broadcast"+SystemClock.elapsedRealtime());
 				Intent fIntent = new Intent(CountdownTimerService.this,
-						CountdownActivity.class);
+						TimersActivity.class);
 				fIntent.putExtra(EXTRA_IS_FINISHED, true);
 				fIntent.putExtra(FROM_SERVICE, true);
+				fIntent.putExtra(TimersActivity.KEY_STATE_APP, TimersActivity.STATE_FROM_SERVICE_FINISHED);
 				fIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
 						| Intent.FLAG_ACTIVITY_NEW_TASK);
-				Log.d("xxx","finish starting app"+SystemClock.elapsedRealtime());
+				
 				getApplication().startActivity(fIntent);
 				this.cancel();
 				stopSelf();

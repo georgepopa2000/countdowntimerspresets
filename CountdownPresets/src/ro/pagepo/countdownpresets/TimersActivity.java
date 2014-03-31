@@ -1,37 +1,60 @@
 package ro.pagepo.countdownpresets;
 
 import android.app.Activity;
+import android.app.FragmentTransaction;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 public class TimersActivity extends Activity {
+	
+	public static final int STATE_FROM_NOTIFICATION = 1;
+	public static final int STATE_FROM_SERVICE = 2;
+	public static final int STATE_FROM_SERVICE_FINISHED = 2;
+	
+	public static final String MINUTES_EXTRA = "MINUTES_EXTRA";
+	public static final String SECONDS_EXTRA = "SECONDS_EXTRA";
+	
+	public static final String KEY_STATE_APP = "KEY_STATE_APP";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_timers);
-
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.timers, menu);
-		return true;
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		// Handle action bar item clicks here. The action bar will
-		// automatically handle clicks on the Home/Up button, so long
-		// as you specify a parent activity in AndroidManifest.xml.
-		int id = item.getItemId();
-		if (id == R.id.action_settings) {
-			return true;
+		
+		
+		if (getIntent().getIntExtra(KEY_STATE_APP, 0) == STATE_FROM_NOTIFICATION) {
+			int minutes = getIntent().getIntExtra(TimersActivity.MINUTES_EXTRA, 5);
+			int seconds = getIntent().getIntExtra(TimersActivity.SECONDS_EXTRA, 0);
+			FragmentTransaction ft = getFragmentManager().beginTransaction();
+			//CountDownJobFragment.newInstance(, `)
+			CountDownJobFragment frg =  CountDownJobFragment.newInstance(0,false);
+			frg.setMillisecondsTimer(minutes, seconds);
+			//ft.addToBackStack(null);
+			ft.replace(R.id.container, frg);			
+			ft.commit();			
+		} else 
+		
+		if (getIntent().getIntExtra(KEY_STATE_APP, 0) == STATE_FROM_SERVICE_FINISHED) {
+			int minutes = getIntent().getIntExtra(TimersActivity.MINUTES_EXTRA, 5);
+			int seconds = getIntent().getIntExtra(TimersActivity.SECONDS_EXTRA, 0);
+			FragmentTransaction ft = getFragmentManager().beginTransaction();
+			//CountDownJobFragment.newInstance(, `)
+			ft.add(R.id.container,new TimerButtonsFragment(), "timer buttons fragment");
+			CountDownJobFragment frg =  CountDownJobFragment.newInstance(0,false);
+			frg.setMillisecondsTimer(minutes, seconds);
+			ft.addToBackStack(null);
+			ft.replace(R.id.container, frg);			
+			ft.commit();			
+		} else 
+	
+		if (savedInstanceState == null){
+			FragmentTransaction ft = getFragmentManager().beginTransaction();
+			ft.add(R.id.container,new TimerButtonsFragment(), "timer buttons fragment");
+			ft.commit();
 		}
-		return super.onOptionsItemSelected(item);
+		
 	}
-
+	
+	
 }

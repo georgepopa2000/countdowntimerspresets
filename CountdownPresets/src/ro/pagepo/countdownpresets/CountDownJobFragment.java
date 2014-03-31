@@ -3,8 +3,8 @@ package ro.pagepo.countdownpresets;
 import android.animation.Animator;
 import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
-import android.annotation.SuppressLint;
 import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.PaintDrawable;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -21,8 +22,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class CountDownJobFragment extends Fragment {
@@ -31,25 +32,27 @@ public class CountDownJobFragment extends Fragment {
 
 	public static final String KEY_SECONDS_TOTAL = "KEY_SECONDS_TOTAL";
 	public static final String MAIN_BROADCAST_ACTION = "ro.pagepo.countdownpresets.CountdownActivity.receiver.action";
+	private boolean shouldStart = false;
 
 	BroadcastReceiver br = new BroadcastReceiver() {
 
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			Log.d("xxx","on receive "+intent.getIntExtra(CountdownActivity.MINUTES_EXTRA,
-					0)+":"+intent.getIntExtra(CountdownActivity.SECONDS_EXTRA,
-							0)+" "+SystemClock.elapsedRealtime());
 			displayTimeLeft(intent.getIntExtra(CountdownActivity.MINUTES_EXTRA,
 					0)
 					* 60
 					* 1000
 					+ intent.getIntExtra(CountdownActivity.SECONDS_EXTRA, 0)
 					* 1000);
-			Log.d("xxx","displayed on receive "+intent.getIntExtra(CountdownActivity.MINUTES_EXTRA,
-					0)+":"+intent.getIntExtra(CountdownActivity.SECONDS_EXTRA,
-							0)+" "+SystemClock.elapsedRealtime());
 		}
 	};
+	
+	public static CountDownJobFragment newInstance(long milliseconds, boolean shouldStart){
+		CountDownJobFragment cdtf = new CountDownJobFragment();
+		cdtf.milliseconds = milliseconds;
+		cdtf.shouldStart = shouldStart;
+		return cdtf;
+	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -57,15 +60,19 @@ public class CountDownJobFragment extends Fragment {
 		View view = inflater.inflate(R.layout.fragment_countdown, container,
 				false);
 
+		Log.d("xxx", "on create view countdown fragment");
 		Button butCancel = (Button) view.findViewById(R.id.butCancelTimer);
 		butCancel.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				stopTimer();
 				Ringtone r = CountDownJobFragment.this.r;
-				if (r != null)
-					r.stop();
-				getActivity().finish();
+				if (r != null) r.stop();
+				//getActivity().finish();
+				stopFlashing();
+				FragmentTransaction ft = getActivity().getFragmentManager().beginTransaction();
+				ft.replace(R.id.container,new TimerButtonsFragment(), "timer buttons fragment");
+				ft.commit();				
 			}
 		});
 
@@ -100,6 +107,7 @@ public class CountDownJobFragment extends Fragment {
 	public void onStart() {
 		super.onStart();
 		displayTimeLeft(milliseconds);
+		
 	}
 
 	Ringtone r = null;
@@ -107,6 +115,12 @@ public class CountDownJobFragment extends Fragment {
 	@Override
 	public void onResume() {
 		super.onResume();
+		
+		if (shouldStart){
+			shouldStart = false;
+			startTimer();
+		}
+		
 		boolean finished = getActivity().getIntent().getBooleanExtra(
 				CountdownTimerService.EXTRA_IS_FINISHED, false);
 		getActivity().getIntent().putExtra(
@@ -114,6 +128,10 @@ public class CountDownJobFragment extends Fragment {
 
 		if (finished) {
 			Log.d("xxx","finish on resume "+SystemClock.elapsedRealtime());
+			getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+			getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
+			getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+			
 			displayTimeLeft(0);
 			Button butStop = (Button) getView().findViewById(R.id.butStopTimer);
 			butStop.setText(getActivity().getResources().getString(
@@ -132,10 +150,11 @@ public class CountDownJobFragment extends Fragment {
 	}
 
 	public void startTimer() {
+		
 		Button butStop = (Button) getView().findViewById(R.id.butStopTimer);
-		butStop.setText(getActivity().getResources().getString(
-				R.string.but_restart_timer));
+		butStop.setText(getActivity().getResources().getString(	R.string.but_restart_timer));
 		displayTimeLeft(milliseconds);
+		//*/
 		startTimerService();
 	}
 
@@ -161,11 +180,8 @@ public class CountDownJobFragment extends Fragment {
 	}
 
 	private void displayTimeLeft(long millis) {
-Log.d("xxx","display time left "+millis+" system time "+SystemClock.elapsedRealtime());
-		if (getView() == null)
-			return;
-		TextView txtTimeLeft = (TextView) getView().findViewById(
-				R.id.txtTimeLeft);
+		if (getView() == null) return;
+		TextView txtTimeLeft = (TextView) getView().findViewById(R.id.txtTimeLeft);
 		if (txtTimeLeft == null)	return;
 		txtTimeLeft.setText(formatTime(millis));
 	}
@@ -173,7 +189,7 @@ Log.d("xxx","display time left "+millis+" system time "+SystemClock.elapsedRealt
 	private String formatTime(long millis) {
 		int minutes = (int) ((millis / 1000) / 60);
 		int seconds = (int) (millis / 1000 - minutes * 60);
-		return minutes + " : " + seconds;
+		return String.format("%02d", minutes)+ " : " + String.format("%02d", seconds);
 	}
 
 	@Override
@@ -189,6 +205,7 @@ Log.d("xxx","display time left "+millis+" system time "+SystemClock.elapsedRealt
 		View lay = getActivity().getWindow().getDecorView().findViewById(android.R.id.content);
 		defaultBackground = lay.getBackground();
 
+
 		colorFade = ObjectAnimator
 				.ofObject(lay, "backgroundColor", new ArgbEvaluator(),
 						Color.argb(255, 255, 255, 255), 0xff000000);
@@ -201,6 +218,7 @@ Log.d("xxx","display time left "+millis+" system time "+SystemClock.elapsedRealt
 
 	@SuppressWarnings("deprecation")
 	private void stopFlashing() {
+		if (colorFade == null) return;
 		colorFade.addListener(new Animator.AnimatorListener() {
 			
 			@Override
@@ -215,8 +233,21 @@ Log.d("xxx","display time left "+millis+" system time "+SystemClock.elapsedRealt
 			public void onAnimationEnd(Animator animation) {
 				if (defaultBackground != null) {
 					View lay = getActivity().getWindow().getDecorView().findViewById(android.R.id.content);
-					lay.setBackgroundDrawable(defaultBackground);
-				} 
+					//lay.setBackgroundDrawable(defaultBackground);
+					PaintDrawable  xxx = (PaintDrawable) defaultBackground;
+									
+					ObjectAnimator colorFade = ObjectAnimator
+							.ofObject(lay, "backgroundColor", new ArgbEvaluator(),
+									xxx.getPaint().getColor()	, 0xff000000);
+					colorFade.setDuration(10);
+					colorFade.setRepeatCount(ObjectAnimator.INFINITE);
+					colorFade.setRepeatMode(ObjectAnimator.REVERSE);
+					colorFade.start();
+				}  else {
+					View lay = getActivity().getWindow().getDecorView().findViewById(android.R.id.content);
+					lay.setBackgroundDrawable(new PaintDrawable(Color.rgb(255, 255, 255)));
+
+				}
 			Log.d("xxx","default background is "+defaultBackground);
 			}
 			
@@ -227,8 +258,11 @@ Log.d("xxx","display time left "+millis+" system time "+SystemClock.elapsedRealt
 		});
 		if (colorFade != null)
 			colorFade.end();
+		View lay = getActivity().getWindow().getDecorView().findViewById(android.R.id.content);
+		lay.setBackgroundDrawable(new PaintDrawable(Color.rgb(255, 255, 255)));
 
 	}
 	
+
 
 }

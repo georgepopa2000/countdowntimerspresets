@@ -6,11 +6,6 @@
     tools:context="ro.pagepo.countdownpresets.TimersActivity"
     tools:ignore="MergeRootFrame" >
 
-    <fragment
-        android:id="@+id/fragment1"
-        android:name="ro.pagepo.countdownpresets.TimerButtonsFragment"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
 
 </ScrollView>
 

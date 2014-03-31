@@ -6,6 +6,8 @@ import java.util.Iterator;
 import ro.pagepo.countdownpresets.views.TimerButton;
 import android.app.AlertDialog;
 import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -101,6 +103,25 @@ public class TimerButtonsFragment extends Fragment implements TimerButtonsFragme
 			} else  {
 				but = new TimerButton(getActivity());
 				but.setTimerInfo(ti);
+				but.setOnClickListener(new View.OnClickListener() {
+					
+					@Override
+					public void onClick(View v) {
+						TimerButton tb = (TimerButton) v;
+						
+						FragmentTransaction ft = TimerButtonsFragment.this.getFragmentManager().beginTransaction();
+						CountDownJobFragment frg =  CountDownJobFragment.newInstance(0,true);
+						//frg.setMillisecondsTimer(tb.getTimerInfo().getMinutes(), 0);
+						frg.setMillisecondsTimer(0,10);
+						//ft.addToBackStack(null);
+						ft.replace(R.id.container, frg);
+						ft.commit();
+						
+						
+
+						//frg.startTimer();						
+					}
+				});
 				registerForContextMenu(but);
 			}
 			
