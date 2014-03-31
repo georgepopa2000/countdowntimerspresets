@@ -16,19 +16,26 @@
 
         <Button
             android:id="@+id/butStopTimer"
+            style="@style/but_smalltext"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_weight="0.5"
-            android:text="@string/but_restart_timer" />
+            android:background="@drawable/blue_button"
+            android:text="@string/but_restart_timer"
+             />
 
         <Button
             android:id="@+id/butCancelTimer"
+            style="@style/but_smalltext"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_weight="0.5"
-            android:text="@string/but_cancel_timer" />
+            android:background="@drawable/blue_button"
+            android:text="@string/but_cancel_timer"
+             />
+
     </LinearLayout>
 
     <FrameLayout

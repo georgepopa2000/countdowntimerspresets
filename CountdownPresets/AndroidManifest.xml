@@ -29,7 +29,7 @@
         </activity>
 
         <service
-            android:name="ro.pagepo.countdownpresets.CountdownTimerService"
+            android:name="ro.pagepo.countdownpresets.service.CountdownTimerService"
             android:enabled="true"
             android:exported="false" >
         </service>

@@ -1,13 +1,8 @@
 package ro.pagepo.countdownpresets.views;
 
-import ro.pagepo.countdownpresets.CountDownJobFragment;
-import ro.pagepo.countdownpresets.CountdownActivity;
-import ro.pagepo.countdownpresets.CountdownTimerService;
 import ro.pagepo.countdownpresets.R;
 import ro.pagepo.countdownpresets.TimerInfo;
-import android.app.FragmentManager;
 import android.content.Context;
-import android.content.Intent;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
@@ -23,6 +18,8 @@ public class TimerButton extends Button{
 	
 	public TimerButton(Context context) {
 		super(context);
+		this.setBackgroundResource(R.drawable.blue_button);
+		this.setTextAppearance(context, R.style.but_reallysmalltext);
 		prepareLayoutParams();		
 	}
 	
@@ -33,20 +30,6 @@ public class TimerButton extends Button{
 	public void setTimerInfo(TimerInfo timerInfo) {
 		this.timerInfo = timerInfo;
 		this.setText(timerInfo.getName());
-		this.setOnClickListener(new View.OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				
-
-				/*
-				Intent intent = new Intent(TimerButton.this.getContext(), CountdownActivity.class);
-				intent.putExtra(CountdownActivity.SECONDS_EXTRA,0);
-				intent.putExtra(CountdownActivity.MINUTES_EXTRA, TimerButton.this.timerInfo.getMinutes());
-				TimerButton.this.getContext().startActivity(intent);
-				//*/
-			}
-		});
 	}
 	
 	

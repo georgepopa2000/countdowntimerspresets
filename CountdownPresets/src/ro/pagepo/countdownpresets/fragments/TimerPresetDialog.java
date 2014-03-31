@@ -1,5 +1,7 @@
-package ro.pagepo.countdownpresets;
+package ro.pagepo.countdownpresets.fragments;
 
+import ro.pagepo.countdownpresets.R;
+import ro.pagepo.countdownpresets.TimerInfo;
 import android.app.DialogFragment;
 import android.os.Bundle;
 import android.util.Log;

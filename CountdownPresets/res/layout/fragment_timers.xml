@@ -16,6 +16,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:text="@string/but_add_timer_preset" />
+        android:text="@string/but_add_timer_preset"
+        style="@style/but_smalltext" 
+        android:background="@drawable/blue_button"/>
 
 </LinearLayout>

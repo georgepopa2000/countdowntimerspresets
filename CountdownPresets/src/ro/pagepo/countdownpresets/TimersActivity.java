@@ -1,16 +1,19 @@
 package ro.pagepo.countdownpresets;
 
+import ro.pagepo.countdownpresets.fragments.CountDownJobFragment;
+import ro.pagepo.countdownpresets.fragments.TimerButtonsFragment;
 import android.app.Activity;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
-import android.os.Parcel;
-import android.os.Parcelable;
 
 public class TimersActivity extends Activity {
 	
 	public static final int STATE_FROM_NOTIFICATION = 1;
 	public static final int STATE_FROM_SERVICE = 2;
 	public static final int STATE_FROM_SERVICE_FINISHED = 2;
+	
+	public static final String TAG_FRAGMENT_TIMERS ="TAG_FRAGMENT_TIMERS";
+	public static final String TAG_FRAGMENT_COUNTDOWN = "TAG_FRAGMENT_COUNTDOWN";
 	
 	public static final String MINUTES_EXTRA = "MINUTES_EXTRA";
 	public static final String SECONDS_EXTRA = "SECONDS_EXTRA";
@@ -31,7 +34,7 @@ public class TimersActivity extends Activity {
 			CountDownJobFragment frg =  CountDownJobFragment.newInstance(0,false);
 			frg.setMillisecondsTimer(minutes, seconds);
 			//ft.addToBackStack(null);
-			ft.replace(R.id.container, frg);			
+			ft.replace(R.id.container, frg,TAG_FRAGMENT_COUNTDOWN);			
 			ft.commit();			
 		} else 
 		
@@ -40,20 +43,30 @@ public class TimersActivity extends Activity {
 			int seconds = getIntent().getIntExtra(TimersActivity.SECONDS_EXTRA, 0);
 			FragmentTransaction ft = getFragmentManager().beginTransaction();
 			//CountDownJobFragment.newInstance(, `)
-			ft.add(R.id.container,new TimerButtonsFragment(), "timer buttons fragment");
+			ft.add(R.id.container,new TimerButtonsFragment(), TAG_FRAGMENT_TIMERS);
 			CountDownJobFragment frg =  CountDownJobFragment.newInstance(0,false);
 			frg.setMillisecondsTimer(minutes, seconds);
 			ft.addToBackStack(null);
-			ft.replace(R.id.container, frg);			
+			ft.replace(R.id.container, frg,TAG_FRAGMENT_COUNTDOWN);			
 			ft.commit();			
 		} else 
 	
 		if (savedInstanceState == null){
 			FragmentTransaction ft = getFragmentManager().beginTransaction();
-			ft.add(R.id.container,new TimerButtonsFragment(), "timer buttons fragment");
+			ft.add(R.id.container,new TimerButtonsFragment(), TAG_FRAGMENT_TIMERS);
 			ft.commit();
 		}
 		
+	}
+	
+	@Override
+	public void onBackPressed() {
+		super.onBackPressed();
+		//getFragmentManager().findFragmentByTag(TAG_FRAGMENT_COUNTDOWN);
+		TimerButtonsFragment tbf = (TimerButtonsFragment) getFragmentManager().findFragmentByTag(TAG_FRAGMENT_TIMERS);
+		if (tbf!= null){
+			if (tbf.isVisible()) this.finish();
+		}
 	}
 	
 	

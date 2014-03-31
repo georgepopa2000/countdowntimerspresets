@@ -1,5 +1,8 @@
-package ro.pagepo.countdownpresets;
+package ro.pagepo.countdownpresets.fragments;
 
+import ro.pagepo.countdownpresets.R;
+import ro.pagepo.countdownpresets.TimersActivity;
+import ro.pagepo.countdownpresets.service.CountdownTimerService;
 import android.animation.Animator;
 import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
@@ -38,11 +41,11 @@ public class CountDownJobFragment extends Fragment {
 
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			displayTimeLeft(intent.getIntExtra(CountdownActivity.MINUTES_EXTRA,
+			displayTimeLeft(intent.getIntExtra(TimersActivity.MINUTES_EXTRA,
 					0)
 					* 60
 					* 1000
-					+ intent.getIntExtra(CountdownActivity.SECONDS_EXTRA, 0)
+					+ intent.getIntExtra(TimersActivity.SECONDS_EXTRA, 0)
 					* 1000);
 		}
 	};
@@ -71,7 +74,8 @@ public class CountDownJobFragment extends Fragment {
 				//getActivity().finish();
 				stopFlashing();
 				FragmentTransaction ft = getActivity().getFragmentManager().beginTransaction();
-				ft.replace(R.id.container,new TimerButtonsFragment(), "timer buttons fragment");
+				ft.setCustomAnimations(R.anim.slide_in_left,R.anim.slide_out_right);
+				ft.replace(R.id.container,new TimerButtonsFragment(), TimersActivity.TAG_FRAGMENT_TIMERS);
 				ft.commit();				
 			}
 		});

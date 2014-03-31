@@ -16,5 +16,7 @@
     <string name="but_stop_timer">Stop alarm</string>
     <string name="but_cancel_timer">Cancel</string>
     <string name="but_restart_timer">Restart timer</string>
-
+   
+  
 </resources>
+

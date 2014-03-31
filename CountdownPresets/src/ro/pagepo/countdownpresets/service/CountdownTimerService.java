@@ -1,5 +1,8 @@
-package ro.pagepo.countdownpresets;
+package ro.pagepo.countdownpresets.service;
 
+import ro.pagepo.countdownpresets.R;
+import ro.pagepo.countdownpresets.TimersActivity;
+import ro.pagepo.countdownpresets.fragments.CountDownJobFragment;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -94,8 +97,8 @@ public class CountdownTimerService extends Service {
 		Log.d("xxx","send broadcast "+seconds+" "+SystemClock.elapsedRealtime());
 		Intent intent = new Intent(CountDownJobFragment.MAIN_BROADCAST_ACTION);
 
-		intent.putExtra(CountdownActivity.MINUTES_EXTRA, minutes);
-		intent.putExtra(CountdownActivity.SECONDS_EXTRA, seconds);
+		intent.putExtra(TimersActivity.MINUTES_EXTRA, minutes);
+		intent.putExtra(TimersActivity.SECONDS_EXTRA, seconds);
 		sendBroadcast(intent);
 	}
 	

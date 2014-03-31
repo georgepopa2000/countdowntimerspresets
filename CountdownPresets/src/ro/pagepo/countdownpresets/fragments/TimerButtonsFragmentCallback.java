@@ -1,4 +1,6 @@
-package ro.pagepo.countdownpresets;
+package ro.pagepo.countdownpresets.fragments;
+
+import ro.pagepo.countdownpresets.TimerInfo;
 
 public interface TimerButtonsFragmentCallback {
 	

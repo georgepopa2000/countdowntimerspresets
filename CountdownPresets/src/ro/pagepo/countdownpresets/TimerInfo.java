@@ -16,10 +16,20 @@ public class TimerInfo implements Serializable {
 	 * number of minutes
 	 */
 	int minutes;
+	/**
+	 * number of seconds
+	 */
+	int seconds;
+	
+	
+	public TimerInfo(String name, int minutes, int seconds) {
+		this.name = name;
+		this.minutes = minutes;
+		this.seconds = seconds;
+	}
 
 	public TimerInfo(String name, int minutes) {
-		this.minutes = minutes;
-		this.name =name;
+		this(name, minutes, 0);
 	}
 
 	public TimerInfo(int minutes) {
@@ -43,11 +53,21 @@ public class TimerInfo implements Serializable {
 	public void setMinutes(int minutes) {
 		this.minutes = minutes;
 	}
+	
+	
+
+	public int getSeconds() {
+		return seconds;
+	}
+
+	public void setSeconds(int seconds) {
+		this.seconds = seconds;
+	}
 
 	public int compareTo(TimerInfo ti) {
-		if (this.minutes > ti.minutes)
+		if ((this.minutes*60+this.seconds) > (ti.minutes * 60 + ti.seconds))
 			return 1;
-		else if (this.minutes < ti.minutes)
+		else if ((this.minutes*60+this.seconds) < (ti.minutes * 60 + ti.seconds))
 			return -1;
 		else
 			return 0;
