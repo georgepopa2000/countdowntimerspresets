@@ -16,9 +16,12 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -82,6 +85,14 @@ public class TimerButtonsFragment extends Fragment implements
 	}
 
 	private void populateWithTimerButtons() {
+		Display display = getActivity().getWindowManager().getDefaultDisplay();
+	    DisplayMetrics outMetrics = new DisplayMetrics ();
+	    display.getMetrics(outMetrics);
+
+	    DisplayMetrics displayMetrics = getActivity().getResources().getDisplayMetrics();
+
+        float dpWidth = displayMetrics.widthPixels / displayMetrics.density;
+
 
 		ArrayList<TimerInfo> listButtonsInfo = getTimersList();
 
@@ -89,8 +100,8 @@ public class TimerButtonsFragment extends Fragment implements
 				R.id.gridButtonsContainer);
 		ArrayList<TimerButton> butList = getButtonTimersList();
 		gl.removeAllViews();
-		int numColumns = (int) Math.floor(gl.getWidth() / MINCELLWIDTH);
-		int columnWidth = gl.getWidth() / numColumns;
+		int numColumns = (int) Math.floor(dpWidth / MINCELLWIDTH);
+		int columnWidth = (int)dpWidth / numColumns;
 		gl.setColumnCount(numColumns);
 
 		Iterator<TimerInfo> it = listButtonsInfo.iterator();
@@ -125,7 +136,7 @@ public class TimerButtonsFragment extends Fragment implements
 								.newInstance(0, true);
 						frg.setMillisecondsTimer(
 								tb.getTimerInfo().getMinutes(), tb.getTimerInfo().getSeconds());
-						frg.setMillisecondsTimer(0, 10);
+						//frg.setMillisecondsTimer(0, 10);
 						ft.setCustomAnimations(R.anim.slide_in_left,R.anim.slide_out_right);
 						ft.replace(R.id.container, frg,TimersActivity.TAG_FRAGMENT_COUNTDOWN);
 
@@ -135,9 +146,11 @@ public class TimerButtonsFragment extends Fragment implements
 				registerForContextMenu(but);
 			}
 
+			columnWidth = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, columnWidth, getResources().getDisplayMetrics());
 			but.setRow(row);
 			but.setColumn(column);
 			but.setWidth(columnWidth);
+			but.setHeight(columnWidth);
 
 			gl.addView(but);
 			column++;

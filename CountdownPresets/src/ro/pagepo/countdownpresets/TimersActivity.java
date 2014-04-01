@@ -1,10 +1,14 @@
 package ro.pagepo.countdownpresets;
 
+import ro.pagepo.countdownpresets.fragments.AboutDialogFragment;
 import ro.pagepo.countdownpresets.fragments.CountDownJobFragment;
 import ro.pagepo.countdownpresets.fragments.TimerButtonsFragment;
 import android.app.Activity;
+import android.app.DialogFragment;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 
 public class TimersActivity extends Activity {
 	
@@ -67,6 +71,24 @@ public class TimersActivity extends Activity {
 		if (tbf!= null){
 			if (tbf.isVisible()) this.finish();
 		}
+	}
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.timers, menu);
+		return true;
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		if (item.getItemId() == R.id.action_show_about){
+			
+			DialogFragment d = AboutDialogFragment.newInstance();
+			
+			d.show(getFragmentManager(), "dialog about");
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
 	}
 	
 	

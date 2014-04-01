@@ -64,7 +64,7 @@ public class CountdownTimerService extends Service {
 				int minutes = (int) ((millisUntilFinished/1000)/60);
 				int seconds = (int) (millisUntilFinished/1000 - minutes*60);
 				sendTimeToReceivers(minutes, seconds);
-				builder.setContentText("Time left "+minutes+" : "+seconds);
+				builder.setContentText("Time left "+String.format("%02d", minutes)+ " : " + String.format("%02d", seconds));
 
 				Notification notification = builder.getNotification();
 				NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
