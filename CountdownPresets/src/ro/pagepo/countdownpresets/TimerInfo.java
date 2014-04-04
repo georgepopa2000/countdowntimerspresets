@@ -21,11 +21,17 @@ public class TimerInfo implements Serializable {
 	 */
 	int seconds;
 	
+	long milliseconds;
+	
+	public TimerInfo(String name,long milliseconds){
+		this.name = name;
+		this.milliseconds = milliseconds;
+	}
+	
 	
 	public TimerInfo(String name, int minutes, int seconds) {
 		this.name = name;
-		this.minutes = minutes;
-		this.seconds = seconds;
+		this.milliseconds = minutes*60*1000+seconds*1000;
 	}
 
 	public TimerInfo(String name, int minutes) {
@@ -38,7 +44,7 @@ public class TimerInfo implements Serializable {
 
 	public String getName() {
 		if (name == null)
-			return minutes + " min";
+			return getMinutes() + " min";
 		return name;
 	}
 
@@ -47,30 +53,42 @@ public class TimerInfo implements Serializable {
 	}
 
 	public int getMinutes() {
-		return minutes;
+		return (int)(milliseconds/60/1000);
 	}
 
 	public void setMinutes(int minutes) {
-		this.minutes = minutes;
+		this.milliseconds = getSeconds()*1000+minutes*60*1000;
 	}
+	
+	
 	
 	
 
 	public int getSeconds() {
-		return seconds;
+		return (int)(milliseconds - getMinutes()*60*1000)/1000;
 	}
 
 	public void setSeconds(int seconds) {
-		this.seconds = seconds;
+		this.milliseconds = getMinutes()*60*1000+seconds*1000;
 	}
 
 	public int compareTo(TimerInfo ti) {
-		if ((this.minutes*60+this.seconds) > (ti.minutes * 60 + ti.seconds))
+		if (this.milliseconds > ti.milliseconds)
 			return 1;
-		else if ((this.minutes*60+this.seconds) < (ti.minutes * 60 + ti.seconds))
+		else if (this.milliseconds < ti.milliseconds)
 			return -1;
 		else
 			return 0;
+	}
+
+
+	public long getMilliseconds() {
+		return milliseconds;
+	}
+
+
+	public void setMilliseconds(long milliseconds) {
+		this.milliseconds = milliseconds;
 	}
 
 }

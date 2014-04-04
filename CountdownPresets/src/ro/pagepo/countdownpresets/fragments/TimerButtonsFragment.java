@@ -85,13 +85,7 @@ public class TimerButtonsFragment extends Fragment implements
 	}
 
 	private void populateWithTimerButtons() {
-		Display display = getActivity().getWindowManager().getDefaultDisplay();
-	    DisplayMetrics outMetrics = new DisplayMetrics ();
-	    display.getMetrics(outMetrics);
 
-	    DisplayMetrics displayMetrics = getActivity().getResources().getDisplayMetrics();
-
-        float dpWidth = displayMetrics.widthPixels / displayMetrics.density;
 
 
 		ArrayList<TimerInfo> listButtonsInfo = getTimersList();
@@ -100,6 +94,13 @@ public class TimerButtonsFragment extends Fragment implements
 				R.id.gridButtonsContainer);
 		ArrayList<TimerButton> butList = getButtonTimersList();
 		gl.removeAllViews();
+		Display display = getActivity().getWindowManager().getDefaultDisplay();
+	    DisplayMetrics outMetrics = new DisplayMetrics ();
+	    display.getMetrics(outMetrics);
+
+	    DisplayMetrics displayMetrics = getActivity().getResources().getDisplayMetrics();
+
+        float dpWidth = displayMetrics.widthPixels / displayMetrics.density;		
 		int numColumns = (int) Math.floor(dpWidth / MINCELLWIDTH);
 		int columnWidth = (int)dpWidth / numColumns;
 		gl.setColumnCount(numColumns);
@@ -132,11 +133,10 @@ public class TimerButtonsFragment extends Fragment implements
 
 						FragmentTransaction ft = TimerButtonsFragment.this
 								.getFragmentManager().beginTransaction();
-						CountDownJobFragment frg = CountDownJobFragment
-								.newInstance(0, true);
-						frg.setMillisecondsTimer(
-								tb.getTimerInfo().getMinutes(), tb.getTimerInfo().getSeconds());
-						//frg.setMillisecondsTimer(0, 10);
+						TimersActivity ta = (TimersActivity) getActivity();
+						CountDownJobFragment frg = (CountDownJobFragment) ta.getFragmentInstanceByTag(TimersActivity.TAG_FRAGMENT_COUNTDOWN);
+						frg.setMillisecondsTimer(tb.getTimerInfo().getMilliseconds());
+						frg.setMillisecondsLeft(tb.getTimerInfo().getMilliseconds());
 						ft.setCustomAnimations(R.anim.slide_in_left,R.anim.slide_out_right);
 						ft.replace(R.id.container, frg,TimersActivity.TAG_FRAGMENT_COUNTDOWN);
 
@@ -261,6 +261,10 @@ public class TimerButtonsFragment extends Fragment implements
 			al.add(it.next().getTimerInfo());
 		}
 		return al;
+	}
+	
+	public void onBackPressed(){
+		if (this.isVisible()) getActivity().finish();
 	}
 
 }

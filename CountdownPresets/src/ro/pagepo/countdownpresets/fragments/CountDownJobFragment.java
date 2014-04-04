@@ -9,7 +9,6 @@ import android.animation.ObjectAnimator;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -20,7 +19,6 @@ import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,28 +30,33 @@ import android.widget.TextView;
 public class CountDownJobFragment extends Fragment {
 
 	long milliseconds = 0;
+	long millisecondsLeft = 0;
 
 	public static final String KEY_SECONDS_TOTAL = "KEY_SECONDS_TOTAL";
 	public static final String MAIN_BROADCAST_ACTION = "ro.pagepo.countdownpresets.CountdownActivity.receiver.action";
-	private boolean shouldStart = false;
-
+	/**
+	 * key attached to intent represents the total milliseconds the timer was started 
+	 */
+	public static final String KEY_MILLISECONDS_TIMER = "KEY_MILLISECONDS_TIMER";
+	/**
+	 * key attached to intent represents the total milliseconds the timer has left
+	 */
+	public static final String KEY_MILLISECONDS_LEFT = "KEY_MILLISECONDS_LEFT";
+	
 	BroadcastReceiver br = new BroadcastReceiver() {
 
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			displayTimeLeft(intent.getIntExtra(TimersActivity.MINUTES_EXTRA,
-					0)
-					* 60
-					* 1000
-					+ intent.getIntExtra(TimersActivity.SECONDS_EXTRA, 0)
-					* 1000);
+			milliseconds = intent.getLongExtra(KEY_MILLISECONDS_TIMER, milliseconds);
+			millisecondsLeft = intent.getLongExtra(KEY_MILLISECONDS_LEFT, milliseconds);
+			displayTimeLeft(millisecondsLeft);
 		}
 	};
 	
-	public static CountDownJobFragment newInstance(long milliseconds, boolean shouldStart){
+	public static CountDownJobFragment newInstance(long milliseconds){
 		CountDownJobFragment cdtf = new CountDownJobFragment();
-		cdtf.milliseconds = milliseconds;
-		cdtf.shouldStart = shouldStart;
+		cdtf.milliseconds = milliseconds;		
+		cdtf.millisecondsLeft = -1;
 		return cdtf;
 	}
 
@@ -63,20 +66,11 @@ public class CountDownJobFragment extends Fragment {
 		View view = inflater.inflate(R.layout.fragment_countdown, container,
 				false);
 
-		Log.d("xxx", "on create view countdown fragment");
 		Button butCancel = (Button) view.findViewById(R.id.butCancelTimer);
 		butCancel.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				stopTimer();
-				Ringtone r = CountDownJobFragment.this.r;
-				if (r != null) r.stop();
-				//getActivity().finish();
-				stopFlashing();
-				FragmentTransaction ft = getActivity().getFragmentManager().beginTransaction();
-				ft.setCustomAnimations(R.anim.slide_in_left,R.anim.slide_out_right);
-				ft.replace(R.id.container,new TimerButtonsFragment(), TimersActivity.TAG_FRAGMENT_TIMERS);
-				ft.commit();				
+				onStopAlarm();
 			}
 		});
 
@@ -92,7 +86,7 @@ public class CountDownJobFragment extends Fragment {
 						.equals(getActivity().getResources().getString(
 								R.string.but_restart_timer))) {
 					// is restart
-
+					stopTimer();
 					startTimer();
 				} else {
 					// is stop
@@ -110,8 +104,7 @@ public class CountDownJobFragment extends Fragment {
 	@Override
 	public void onStart() {
 		super.onStart();
-		displayTimeLeft(milliseconds);
-		
+		displayTimeLeft(milliseconds);		
 	}
 
 	Ringtone r = null;
@@ -120,8 +113,7 @@ public class CountDownJobFragment extends Fragment {
 	public void onResume() {
 		super.onResume();
 		
-		if (shouldStart){
-			shouldStart = false;
+		if (milliseconds == millisecondsLeft){
 			startTimer();
 		}
 		
@@ -131,7 +123,6 @@ public class CountDownJobFragment extends Fragment {
 				CountdownTimerService.EXTRA_IS_FINISHED, false);
 
 		if (finished) {
-			Log.d("xxx","finish on resume "+SystemClock.elapsedRealtime());
 			getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 			getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
 			getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
@@ -147,7 +138,7 @@ public class CountDownJobFragment extends Fragment {
 			displayTimeLeft(0);
 
 		} else
-			displayTimeLeft(milliseconds);
+			displayTimeLeft(millisecondsLeft);
 
 		getActivity().registerReceiver(br,
 				new IntentFilter(MAIN_BROADCAST_ACTION));
@@ -157,7 +148,7 @@ public class CountDownJobFragment extends Fragment {
 		
 		Button butStop = (Button) getView().findViewById(R.id.butStopTimer);
 		butStop.setText(getActivity().getResources().getString(	R.string.but_restart_timer));
-		displayTimeLeft(milliseconds);
+		displayTimeLeft(millisecondsLeft);
 		//*/
 		startTimerService();
 	}
@@ -167,9 +158,9 @@ public class CountDownJobFragment extends Fragment {
 		Intent sintent = new Intent(this.getActivity(),
 				CountdownTimerService.class);
 		getActivity().stopService(sintent);
-		sintent.putExtra(KEY_SECONDS_TOTAL, (int) (this.milliseconds / 1000));
-		ComponentName srv = getActivity().startService(sintent);
-		Log.d("xxx", "service is " + srv);
+		//sintent.putExtra(KEY_SECONDS_TOTAL, (int) (this.milliseconds / 1000));
+		sintent.putExtra(KEY_SECONDS_TOTAL, 10);
+		getActivity().startService(sintent);
 	}
 
 	public void stopTimer() {
@@ -178,9 +169,15 @@ public class CountDownJobFragment extends Fragment {
 		getActivity().stopService(sintent);
 	}
 
-	public void setMillisecondsTimer(int minutes, int seconds) {
-		this.milliseconds = minutes * 60 * 1000 + seconds * 1000;
-		displayTimeLeft(this.milliseconds);
+	
+	public void setMillisecondsTimer(long milliseconds) {
+		this.milliseconds = milliseconds;
+		//displayTimeLeft(this.milliseconds);
+	}	
+	
+	public void setMillisecondsLeft(long millisecondsLeft){
+		this.millisecondsLeft = millisecondsLeft;
+		displayTimeLeft(this.millisecondsLeft);
 	}
 
 	private void displayTimeLeft(long millis) {
@@ -192,7 +189,7 @@ public class CountDownJobFragment extends Fragment {
 
 	private String formatTime(long millis) {
 		int minutes = (int) ((millis / 1000) / 60);
-		int seconds = (int) (millis / 1000 - minutes * 60);
+		int seconds = (int) (Math.round(((double)millis) / 1000) - minutes * 60);
 		return String.format("%02d", minutes)+ " : " + String.format("%02d", seconds);
 	}
 
@@ -267,6 +264,30 @@ public class CountDownJobFragment extends Fragment {
 
 	}
 	
+	public void onBackPressed(){
+		if (this.isVisible()){
+			if (millisecondsLeft > 0){
+				getActivity().finish();
+			} else 
+				if (millisecondsLeft == 0){
+					onStopAlarm();			
+				}
+		}
+	}
+	
+	public void onStopAlarm(){
+		stopTimer();
+		Ringtone r = CountDownJobFragment.this.r;
+		if (r != null) r.stop();
+		//getActivity().finish();
+		stopFlashing();
+		FragmentTransaction ft = getActivity().getFragmentManager().beginTransaction();
+		ft.setCustomAnimations(R.anim.slide_in_left,R.anim.slide_out_right);
+		TimersActivity ta = (TimersActivity)getActivity();
+		ft.replace(R.id.container,ta.getFragmentInstanceByTag(TimersActivity.TAG_FRAGMENT_TIMERS), TimersActivity.TAG_FRAGMENT_TIMERS);
+		ft.commit();			
+	}
 
 
+	
 }

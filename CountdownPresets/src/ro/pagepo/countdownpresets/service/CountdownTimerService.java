@@ -18,10 +18,11 @@ import android.util.Log;
 public class CountdownTimerService extends Service {
 	public static final int NOTIFICATION_ID = 1211;
 	public static final String EXTRA_IS_FINISHED ="EXTRA_IS_FINISHED";
-	public static final String FROM_SERVICE = "FROM_SERVICE";
 
 	CountDownTimer cdt = null;
 	Notification.Builder builder;
+	
+	long millisecondsTimer = 0;
 
 	public CountdownTimerService() {
 	}
@@ -35,35 +36,48 @@ public class CountdownTimerService extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
+
+	}
+	
+	private void createNotificationBuilder(){
 		builder = new Notification.Builder(this);
 		builder.setSmallIcon(R.drawable.ic_launcher);
 		builder.setTicker("Countdown timer started");
 		builder.setContentTitle("Countdown timer running");
-		Intent intent = new Intent(this, TimersActivity.class);
-		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
+		Intent pintent = new Intent(this, TimersActivity.class);
+		pintent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
 				| Intent.FLAG_ACTIVITY_NEW_TASK);
-		intent.putExtra(FROM_SERVICE, true);
-		intent.putExtra(TimersActivity.KEY_STATE_APP, TimersActivity.STATE_FROM_NOTIFICATION);
+		pintent.putExtra(CountDownJobFragment.KEY_MILLISECONDS_TIMER, (long)millisecondsTimer);
+		pintent.putExtra(CountDownJobFragment.KEY_MILLISECONDS_LEFT, (long)millisecondsTimer-1);
+		
+		pintent.putExtra(TimersActivity.KEY_STATE_APP, TimersActivity.STATE_FROM_NOTIFICATION);
+
 		PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
-				intent, 0);
-		builder.setContentIntent(pendingIntent);
+				pintent, PendingIntent.FLAG_UPDATE_CURRENT);
+		
+		builder.setContentIntent(pendingIntent);		
 	}
 
 	@SuppressWarnings("deprecation")
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
+		int seconds = intent.getIntExtra(CountDownJobFragment.KEY_SECONDS_TOTAL, 60);
+		millisecondsTimer = seconds*1000;
+		createNotificationBuilder();
+
+		
 		startForeground(NOTIFICATION_ID, builder.getNotification());
 		if (cdt != null)
 			cdt.cancel();
-		int seconds = intent.getIntExtra(CountDownJobFragment.KEY_SECONDS_TOTAL, 60);
-		cdt = new CountDownTimer(seconds * 1000, 100) {
+		
+		cdt = new CountDownTimer(millisecondsTimer, 100) {
 
 			@Override
 			public void onTick(long millisUntilFinished) {
 
 				int minutes = (int) ((millisUntilFinished/1000)/60);
 				int seconds = (int) (millisUntilFinished/1000 - minutes*60);
-				sendTimeToReceivers(minutes, seconds);
+				sendTimeToReceivers(millisUntilFinished);
 				builder.setContentText("Time left "+String.format("%02d", minutes)+ " : " + String.format("%02d", seconds));
 
 				Notification notification = builder.getNotification();
@@ -78,8 +92,9 @@ public class CountdownTimerService extends Service {
 				Intent fIntent = new Intent(CountdownTimerService.this,
 						TimersActivity.class);
 				fIntent.putExtra(EXTRA_IS_FINISHED, true);
-				fIntent.putExtra(FROM_SERVICE, true);
 				fIntent.putExtra(TimersActivity.KEY_STATE_APP, TimersActivity.STATE_FROM_SERVICE_FINISHED);
+				fIntent.putExtra(CountDownJobFragment.KEY_MILLISECONDS_LEFT, (long)0);
+				fIntent.putExtra(CountDownJobFragment.KEY_MILLISECONDS_TIMER, (long)millisecondsTimer);
 				fIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
 						| Intent.FLAG_ACTIVITY_NEW_TASK);
 				
@@ -93,19 +108,17 @@ public class CountdownTimerService extends Service {
 		return super.onStartCommand(intent, flags, startId);
 	}
 	
-	private void sendTimeToReceivers(int minutes,int seconds){
-		Log.d("xxx","send broadcast "+seconds+" "+SystemClock.elapsedRealtime());
-		Intent intent = new Intent(CountDownJobFragment.MAIN_BROADCAST_ACTION);
 
-		intent.putExtra(TimersActivity.MINUTES_EXTRA, minutes);
-		intent.putExtra(TimersActivity.SECONDS_EXTRA, seconds);
-		sendBroadcast(intent);
+	private void sendTimeToReceivers(long millisecondsLeft){
+		Intent intent = new Intent(CountDownJobFragment.MAIN_BROADCAST_ACTION);
+		intent.putExtra(CountDownJobFragment.KEY_MILLISECONDS_LEFT, (long)millisecondsLeft);
+		intent.putExtra(CountDownJobFragment.KEY_MILLISECONDS_TIMER, (long)this.millisecondsTimer);
+		sendBroadcast(intent);		
 	}
 	
 	@Override
 	public void onDestroy() {
-		super.onDestroy();
-		Log.d("xxx","on destroy");
+		super.onDestroy();		
 		stopForeground(true);
 		if (cdt!= null) cdt.cancel();
 	}
