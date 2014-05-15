@@ -223,7 +223,7 @@ public class TimerButtonsFragment extends Fragment implements
 			ArrayList<TimerInfo> al = getCurrentTimerInfoListFromButtonList(getButtonTimersList());
 			int index = al.indexOf(oldTi);
 			Log.d("xxx", "index is" + index);
-			oldTi.setMinutes(newTi.getMinutes());
+			oldTi.setMilliseconds(newTi.getMilliseconds());
 			oldTi.setName(newTi.getName());
 
 			TimersUtil.sortTimersList(al);

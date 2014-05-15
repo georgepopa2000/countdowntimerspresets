@@ -10,6 +10,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.NumberPicker;
+import android.widget.TimePicker;
 
 public class TimerPresetDialog extends DialogFragment {
 	
@@ -35,29 +37,34 @@ public class TimerPresetDialog extends DialogFragment {
 		Bundle bdl = getArguments();
 		final TimerInfo ti = (TimerInfo) bdl.getSerializable("timerinfo");
 		final EditText txtTitle = (EditText) view.findViewById(R.id.txtTimerPresetDialogTitle);
-		final EditText txtMinutes = (EditText) view.findViewById(R.id.txtTimerPresetDialogMinutes);
+		
+		final NumberPicker numberMinutes = (NumberPicker) view.findViewById(R.id.numberMinutes);
+		final NumberPicker numberSeconds = (NumberPicker) view.findViewById(R.id.numberSeconds);
+		numberSeconds.setMaxValue(59);
+		numberSeconds.setMinValue(0);
+		numberMinutes.setMinValue(0);
+		numberMinutes.setMaxValue(10000);
 		Button butOk = (Button) view.findViewById(R.id.butTimerPresetAdd);
 
 		if (ti !=null){		
 			txtTitle.setText(ti.getName());
-			txtMinutes.setText(ti.getMinutes()+"");
-			butOk.setText(getActivity().getResources().getString(R.string.but_timer_preset_edit));
+			butOk.setText(getActivity().getResources().getString(R.string.but_timer_preset_edit));			
+			numberMinutes.setValue(ti.getMinutes());
+			numberSeconds.setValue(ti.getSeconds());
 			this.getDialog().setTitle("Edit preset");
 		} else {
 			this.getDialog().setTitle("Add  preset");
-			txtMinutes.setText("5");
+			numberMinutes.setValue(5);
 		}
 		
 		butOk.setOnClickListener(new View.OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
-				Log.d("xxx","title is "+txtTitle.getText().toString());
 				
 				String name =txtTitle.getText().toString().equalsIgnoreCase("")?null:txtTitle.getText().toString();
-				Log.d("xxx","name is "+name);
-				int minutes = Integer.valueOf(txtMinutes.getText().toString());
-				TimerPresetDialog.this.callback.returnedFromDialogTimerPreset(ti, new TimerInfo(name, minutes));
+							
+				TimerPresetDialog.this.callback.returnedFromDialogTimerPreset(ti, new TimerInfo(name, numberMinutes.getValue(),numberSeconds.getValue()));
 				TimerPresetDialog.this.dismiss();
 			}
 			

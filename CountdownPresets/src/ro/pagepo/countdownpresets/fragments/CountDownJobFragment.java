@@ -1,5 +1,7 @@
 package ro.pagepo.countdownpresets.fragments;
 
+import java.util.concurrent.TimeUnit;
+
 import ro.pagepo.countdownpresets.R;
 import ro.pagepo.countdownpresets.TimersActivity;
 import ro.pagepo.countdownpresets.service.CountdownTimerService;
@@ -158,8 +160,8 @@ public class CountDownJobFragment extends Fragment {
 		Intent sintent = new Intent(this.getActivity(),
 				CountdownTimerService.class);
 		getActivity().stopService(sintent);
-		//sintent.putExtra(KEY_SECONDS_TOTAL, (int) (this.milliseconds / 1000));
-		sintent.putExtra(KEY_SECONDS_TOTAL, 10);
+		sintent.putExtra(KEY_SECONDS_TOTAL, (int) (this.milliseconds / 1000));
+		//sintent.putExtra(KEY_SECONDS_TOTAL, 10);
 		getActivity().startService(sintent);
 	}
 
@@ -188,8 +190,9 @@ public class CountDownJobFragment extends Fragment {
 	}
 
 	private String formatTime(long millis) {
-		int minutes = (int) ((millis / 1000) / 60);
-		int seconds = (int) (Math.round(((double)millis) / 1000) - minutes * 60);
+		
+		long minutes = TimeUnit.MILLISECONDS.toMinutes(millis);//(int) ((millis / 1000) / 60);
+		long seconds = TimeUnit.MILLISECONDS.toSeconds(millis)-minutes*60;//(int) (Math.round(((double)millis) / 1000) - minutes * 60);
 		return String.format("%02d", minutes)+ " : " + String.format("%02d", seconds);
 	}
 

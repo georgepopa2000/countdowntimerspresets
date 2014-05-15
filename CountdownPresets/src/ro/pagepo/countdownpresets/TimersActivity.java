@@ -122,13 +122,13 @@ public class TimersActivity extends Activity {
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		if (countDownTimerFragment!=null) getFragmentManager().putFragment(outState, TAG_FRAGMENT_COUNTDOWN, countDownTimerFragment);
-		if (timerButtonsFragment!=null) getFragmentManager().putFragment(outState, TAG_FRAGMENT_TIMERS, timerButtonsFragment);
+		//if (countDownTimerFragment!=null) getFragmentManager().putFragment(outState, TAG_FRAGMENT_COUNTDOWN, countDownTimerFragment);
+		//if (timerButtonsFragment!=null) getFragmentManager().putFragment(outState, TAG_FRAGMENT_TIMERS, timerButtonsFragment);
 	}
 	
 	protected void restoreFragmentInstances(Bundle bundle){
-		countDownTimerFragment = getFragmentManager().getFragment(bundle, TAG_FRAGMENT_COUNTDOWN);
-		timerButtonsFragment = getFragmentManager().getFragment(bundle, TAG_FRAGMENT_TIMERS);
+		//countDownTimerFragment = getFragmentManager().getFragment(bundle, TAG_FRAGMENT_COUNTDOWN);
+		//timerButtonsFragment = getFragmentManager().getFragment(bundle, TAG_FRAGMENT_TIMERS);
 	}
 	
 	

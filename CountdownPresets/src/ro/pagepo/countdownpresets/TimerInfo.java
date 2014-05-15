@@ -12,14 +12,6 @@ public class TimerInfo implements Serializable {
 	 * timer name, may be null defaults to minutes
 	 */
 	String name;
-	/**
-	 * number of minutes
-	 */
-	int minutes;
-	/**
-	 * number of seconds
-	 */
-	int seconds;
 	
 	long milliseconds;
 	
@@ -56,20 +48,8 @@ public class TimerInfo implements Serializable {
 		return (int)(milliseconds/60/1000);
 	}
 
-	public void setMinutes(int minutes) {
-		this.milliseconds = getSeconds()*1000+minutes*60*1000;
-	}
-	
-	
-	
-	
-
 	public int getSeconds() {
 		return (int)(milliseconds - getMinutes()*60*1000)/1000;
-	}
-
-	public void setSeconds(int seconds) {
-		this.milliseconds = getMinutes()*60*1000+seconds*1000;
 	}
 
 	public int compareTo(TimerInfo ti) {

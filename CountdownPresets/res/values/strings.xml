@@ -9,7 +9,7 @@
     <string name="action_edit_preset">Edit</string>
     <string name="action_delete_preset">Delete</string>
     <string name="lbl_preset_title">Title</string>
-    <string name="lbl_preset_time">Time(minutes)</string>
+    <string name="lbl_preset_time">Time</string>
     <string name="but_timer_preset_add">Add</string>
     <string name="but_timer_preset_edit">Edit</string>
     <string name="txt_timer_preset_hint">Optional</string>
@@ -19,5 +19,7 @@
     <string name="but_restart_timer">Restart timer</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="but_close_dialog">Close</string>
+    <string name="lbl_time_min">min</string>
+    <string name="lbl_time_sec">sec</string>
 
 </resources>

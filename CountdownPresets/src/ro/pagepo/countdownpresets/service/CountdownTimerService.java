@@ -105,7 +105,7 @@ public class CountdownTimerService extends Service {
 			}
 		};
 		cdt.start();
-		return super.onStartCommand(intent, flags, startId);
+		return START_STICKY;
 	}
 	
 
