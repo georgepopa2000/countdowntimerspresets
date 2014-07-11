@@ -102,11 +102,13 @@ public class TimerButtonsFragment extends Fragment implements
 
         float dpWidth = displayMetrics.widthPixels / displayMetrics.density;		
 		int numColumns = (int) Math.floor(dpWidth / MINCELLWIDTH);
+		Log.d("xxxl", "columns: "+numColumns);
 		int columnWidth = (int)dpWidth / numColumns;
 		gl.setColumnCount(numColumns);
 
 		Iterator<TimerInfo> it = listButtonsInfo.iterator();
 
+		columnWidth = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, columnWidth, getResources().getDisplayMetrics());
 		int column = 0;
 		int row = 0;
 		while (it.hasNext()) {
@@ -146,7 +148,9 @@ public class TimerButtonsFragment extends Fragment implements
 				registerForContextMenu(but);
 			}
 
-			columnWidth = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, columnWidth, getResources().getDisplayMetrics());
+			//Log.d("xxxl", "column width px: "+columnWidth);
+			//int columnWidtht = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, columnWidth, getResources().getDisplayMetrics());
+			//Log.d("xxxl", "column width: "+columnWidth);
 			but.setRow(row);
 			but.setColumn(column);
 			but.setWidth(columnWidth);

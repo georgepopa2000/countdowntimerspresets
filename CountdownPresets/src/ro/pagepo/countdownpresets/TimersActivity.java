@@ -12,6 +12,7 @@ import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -43,6 +44,7 @@ public class TimersActivity extends Activity {
 	}
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		Log.d("oncreate", "activity created");
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_timers);
 		if (savedInstanceState!=null) restoreFragmentInstances(savedInstanceState);
@@ -75,6 +77,12 @@ public class TimersActivity extends Activity {
 				
 
 		
+	}
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		Log.d("onresume", "activity resumed");
 	}
 	
 	@Override

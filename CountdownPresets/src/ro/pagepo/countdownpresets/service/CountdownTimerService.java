@@ -65,8 +65,10 @@ public class CountdownTimerService extends Service {
 		millisecondsTimer = seconds*1000;
 		createNotificationBuilder();
 
+		Notification notification = builder.getNotification();
+		final NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 		
-		startForeground(NOTIFICATION_ID, builder.getNotification());
+		nm.notify(NOTIFICATION_ID,notification);
 		if (cdt != null)
 			cdt.cancel();
 		
@@ -81,7 +83,8 @@ public class CountdownTimerService extends Service {
 				builder.setContentText("Time left "+String.format("%02d", minutes)+ " : " + String.format("%02d", seconds));
 
 				Notification notification = builder.getNotification();
-				NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+				
+				Log.d("notify", "notifiy "+minutes+":"+seconds);
 				nm.notify(NOTIFICATION_ID, notification);
 			}
 
@@ -114,12 +117,15 @@ public class CountdownTimerService extends Service {
 		intent.putExtra(CountDownJobFragment.KEY_MILLISECONDS_LEFT, (long)millisecondsLeft);
 		intent.putExtra(CountDownJobFragment.KEY_MILLISECONDS_TIMER, (long)this.millisecondsTimer);
 		sendBroadcast(intent);		
-	}
+	}	
 	
 	@Override
 	public void onDestroy() {
 		super.onDestroy();		
-		stopForeground(true);
+		//stopForeground(true);
+		final NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+		
+		nm.cancel(NOTIFICATION_ID);		
 		if (cdt!= null) cdt.cancel();
 	}
 

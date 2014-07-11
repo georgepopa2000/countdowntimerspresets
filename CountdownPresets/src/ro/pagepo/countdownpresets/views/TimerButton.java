@@ -52,6 +52,8 @@ public class TimerButton extends Button{
 		GridLayout.LayoutParams params= (GridLayout.LayoutParams)this.getLayoutParams();
         params.rowSpec = GridLayout.spec(this.row);
 	}
+	
+	
 
 	private void prepareLayoutParams(){
 		GridLayout.LayoutParams params = new GridLayout.LayoutParams();
@@ -75,9 +77,23 @@ public class TimerButton extends Button{
 		
 		return super.equals(o);
 	}
+/*
+	@Override
+	public void setWidth(int pixels) {
+		super.setWidth(pixels);
+		GridLayout.LayoutParams params= (GridLayout.LayoutParams)this.getLayoutParams();
+        params.width = pixels;		
+	}
+	
+	@Override
+	public void setHeight(int pixels) {
+		super.setHeight(pixels);
+		GridLayout.LayoutParams params= (GridLayout.LayoutParams)this.getLayoutParams();
+        params.height = pixels;		
+	}
 	
 
-	
+	//*/
 	
 	
 

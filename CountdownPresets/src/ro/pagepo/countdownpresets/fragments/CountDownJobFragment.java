@@ -10,6 +10,7 @@ import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
+import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -279,6 +280,7 @@ public class CountDownJobFragment extends Fragment {
 	}
 	
 	public void onStopAlarm(){
+		Log.d("onstopalarm", "cancel pressed");
 		stopTimer();
 		Ringtone r = CountDownJobFragment.this.r;
 		if (r != null) r.stop();
@@ -288,7 +290,14 @@ public class CountDownJobFragment extends Fragment {
 		ft.setCustomAnimations(R.anim.slide_in_left,R.anim.slide_out_right);
 		TimersActivity ta = (TimersActivity)getActivity();
 		ft.replace(R.id.container,ta.getFragmentInstanceByTag(TimersActivity.TAG_FRAGMENT_TIMERS), TimersActivity.TAG_FRAGMENT_TIMERS);
-		ft.commit();			
+		ft.commit();	
+		try {
+			Thread.sleep(110);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		NotificationManager nm = (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
+		nm.cancel(CountdownTimerService.NOTIFICATION_ID);
 	}
 
 
